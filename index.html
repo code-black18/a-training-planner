@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VA learning planner</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#4b4ad1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="VA planner">
+<style>
+:root{--bg:#f4f4f8;--card:#fff;--ink:#23232b;--mute:#6b6b78;--line:#e2e2ea;--acc:#4b4ad1;--accbg:#e8e8fb;--ok:#1f7a4d;--okbg:#e1f4ea;--warn:#8a5a00;--warnbg:#fbeed0;--bad:#b3261e;--badbg:#fbe3e1;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17171c;--card:#212128;--ink:#ececf2;--mute:#a0a0ae;--line:#34343e;--acc:#a5a4ff;--accbg:#2c2b55;--ok:#6fd6a0;--okbg:#1c3a2c;--warn:#f0c068;--warnbg:#3d3015;--bad:#ff9a92;--badbg:#44201e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17171c;--card:#212128;--ink:#ececf2;--mute:#a0a0ae;--line:#34343e;--acc:#a5a4ff;--accbg:#2c2b55;--ok:#6fd6a0;--okbg:#1c3a2c;--warn:#f0c068;--warnbg:#3d3015;--bad:#ff9a92;--badbg:#44201e;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:560px;margin:0 auto;padding:10px 12px 28px}
+h1{font-size:16px;font-weight:600;margin:0}
+.r1,.r2{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.r1{margin-bottom:6px}.r2{margin-bottom:8px}
+.stats{display:flex;gap:10px;font-size:12px;color:var(--mute);flex-wrap:wrap}.stats b{color:var(--ink);font-weight:600}
+.tools{display:flex;gap:6px}
+.chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:8px;padding-bottom:2px;scrollbar-width:none}
+.chip{flex:none;font:inherit;font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--mute);cursor:pointer}
+.chip.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid var(--line);margin-bottom:8px}.tab{font:inherit;font-size:13px;padding:9px 0;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--mute);cursor:pointer}.tab.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}.tab small{font-size:11px}
+.it{background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:6px;overflow:hidden}
+.row{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:7px 10px;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.d0{background:var(--warn)}.d1{background:var(--acc)}.d2{background:var(--ok)}
+.tt{flex:1;min-width:0}.tt b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tt small{color:var(--mute);font-size:12px}
+.dt{font-size:12px;text-align:right;color:var(--mute);flex:none}
+.more{padding:8px 10px 10px 29px;border-top:1px solid var(--line)}
+.rows{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px}
+.rows span{overflow-wrap:anywhere}.rows span:nth-child(odd){color:var(--mute)}
+.rows a{color:var(--acc)}.pre{white-space:pre-wrap}
+.c-acc{color:var(--acc)!important}.c-ok{color:var(--ok)!important}.c-warn{color:var(--warn)!important}.c-bad{color:var(--bad)!important}.c-mute{color:var(--mute)!important}
+.acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.badge{font:inherit;font-size:12px;padding:4px 10px;border-radius:6px;border:0;cursor:pointer;min-height:32px}
+.s0{background:var(--warnbg);color:var(--warn)}.s1{background:var(--accbg);color:var(--acc)}.s2{background:var(--okbg);color:var(--ok)}
+.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 12px;min-height:40px;cursor:pointer}
+.btn.sm{min-height:32px;padding:4px 10px;font-size:12px}
+.btn.pri{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.btn.del{color:var(--bad)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:5}
+.sheet{background:var(--card);width:100%;max-width:480px;max-height:calc(100% - env(safe-area-inset-top,0px) - 8px);overflow:auto;border-radius:14px 14px 0 0;padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px))}
+@media(min-width:600px){.ov{align-items:center}.sheet{border-radius:14px;max-height:90%}}
+.sheet h2{font-size:15px;font-weight:600;margin:0 0 8px}
+.g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.g .w{grid-column:span 2}
+label{display:block;font-size:12px;color:var(--mute);margin-bottom:2px}
+input,select,textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 8px;min-height:40px}
+textarea{min-height:64px;resize:vertical}
+.ck{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink);margin:0;min-height:40px}.ck input{width:auto;min-height:0}
+.tr{display:flex;gap:8px}.tr>*{min-width:0}
+.err{font-size:12px;margin-top:6px;color:var(--bad)}
+.bar{display:flex;gap:8px;margin-top:10px}.bar .pri{flex:1}
+.empty{text-align:center;padding:24px 12px;color:var(--mute)}.empty strong{display:block;color:var(--ink);font-size:15px}
+.sv{font-size:11px;color:var(--mute);margin:-2px 0 6px}.sv.bad{color:var(--bad)}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+</style>
+</head>
+<body>
+<main>
+  <div class="r1"><h1>VA learning planner</h1><div class="tools"><button class="btn sm" id="th" aria-label="Change day or night mode">Auto</button><button class="btn sm" id="bk">Backup</button></div></div>
+  <div class="sv" id="sv"></div>
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div id="list"></div>
+  <button class="btn pri" id="add" style="width:100%;margin-top:4px">+ Add item</button>
+</main>
+
+<div class="ov" id="fo" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="f-title">
+    <h2 id="f-title">Add item</h2>
+    <div class="g">
+      <div class="w"><label for="f-ttl">Title</label><input id="f-ttl" type="text" placeholder="Name of the module, webinar, or assignment"></div>
+      <div class="w"><label for="f-name">Company, coach, or mentor</label><input id="f-name" type="text"></div>
+      <div class="w"><label for="f-type">Type</label><div class="tr"><select id="f-type"></select><input id="f-ctype" type="text" placeholder="Custom name" aria-label="Custom type name" hidden></div></div>
+      <div><label for="f-stat">Status</label><select id="f-stat"></select></div>
+      <div><label for="f-start" id="dt-lab">Date started</label><input id="f-start" type="date"></div>
+      <div class="w" id="ls" hidden><div class="g"><div><label for="f-ldone">Lessons done</label><input id="f-ldone" type="number" inputmode="numeric" min="0" step="1"></div><div><label for="f-ltot">Total lessons</label><input id="f-ltot" type="number" inputmode="numeric" min="0" step="1"></div></div></div>
+      <div class="w" id="wb" hidden>
+        <div class="g"><div><label for="f-wst">Start time</label><input id="f-wst" type="time"></div><div><label for="f-wen">End time</label><input id="f-wen" type="time"></div></div>
+        <label for="f-det" style="margin-top:8px">Details (what the webinar is about)</label><textarea id="f-det"></textarea>
+      </div>
+      <div class="w"><label for="f-link" id="lk-lab">Link</label><input id="f-link" type="url" placeholder="https://"></div>
+      <div><label for="f-cost">Cost</label><select id="f-cost"><option>Free</option><option>Paid</option></select></div>
+      <div id="pr-row" hidden><label for="f-price">Price (₱)</label><input id="f-price" type="number" inputmode="decimal" min="0" step="any"></div>
+      <div class="w" id="dc-row" hidden><div class="g"><label class="ck"><input type="checkbox" id="f-dc"> Discounted</label><input id="f-orig" type="number" inputmode="decimal" min="0" step="any" placeholder="Original price (₱)" aria-label="Original price in pesos" hidden></div></div>
+      <div><label for="f-lim">Limited time</label><select id="f-lim"><option>No</option><option>Yes</option></select></div>
+      <div id="end-row" hidden><label for="f-end">Ends on</label><input id="f-end" type="date"></div>
+      <div class="w"><label for="f-note">Note</label><textarea id="f-note"></textarea></div>
+    </div>
+    <div class="err" id="f-err" hidden></div>
+    <div class="bar"><button class="btn pri" id="f-save">Save item</button><button class="btn" id="f-cancel">Cancel</button></div>
+  </div>
+</div>
+
+<div class="ov" id="bo" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="b-title">
+    <h2 id="b-title">Backup data</h2>
+    <p style="margin:0 0 8px;color:var(--mute);font-size:13px">Download saves a JSON file. Upload restores from one and replaces your current list.</p>
+    <textarea id="bk-text" aria-label="Backup text" hidden></textarea>
+    <input type="file" id="bk-file" accept=".json,application/json" hidden>
+    <div class="err" id="bk-msg" hidden></div>
+    <div class="bar"><button class="btn pri" id="bk-dl">Download backup</button><button class="btn" id="bk-up">Upload backup</button><button class="btn" id="bk-close">Close</button></div>
+  </div>
+</div>
+
+<script>
+var KEY="va-planner-v1",TK="va-planner-theme";
+var TYPES=["Module","Live webinar","Webinar replay","Assignment","Resources","Training","Others"];
+var STAT=["Not started","In progress","Done"];
+var S={items:[]},tab="Not started",editId=null,armed=null,open={};
+var TABS=[["Not started","Upcoming"],["In progress","In progress"],["Done","Done"]];
+function migrate(it){if(it.type==="Study block"){it.type="Others";it.ctype=it.ctype||"Study block"}if(it.start)it.start=String(it.start).slice(0,10);return it}
+try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);if(p&&Array.isArray(p.items))S.items=p.items.map(migrate)}}catch(e){}
+var CLOUD=null,cloudOK=false,lsOK=true;
+try{localStorage.setItem("va-test","1");localStorage.removeItem("va-test")}catch(e){lsOK=false}
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+function stat(){var el=$("sv");if(!el)return;if(cloudOK){el.textContent="Saved to your Claude account";el.className="sv"}else if(lsOK){el.textContent="Saved on this device only";el.className="sv"}else{el.textContent="Not saving here. Use Backup to keep your items.";el.className="sv bad"}}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(S));lsOK=localStorage.getItem(KEY)!==null}catch(e){lsOK=false}
+  if(CLOUD){CLOUD.set({items:S.items}).then(function(){cloudOK=true;stat()},function(){cloudOK=false;stat()})}else stat();
+}
+async function initCloud(){
+  try{
+    var c=window.claude;if(!c)return;
+    var db=await c.use("db"),u=await c.use("user");if(!db||!u)return;
+    var id=await u.id();if(!id)return;
+    var ref=db.collection("data/users/"+id).doc("planner");
+    var snap=await ref.get(),d=snap.exists?snap.data():null;
+    if(d&&Array.isArray(d.items)&&(d.items.length||!S.items.length)){S.items=d.items.map(migrate);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+    else if(S.items.length){await ref.set({items:S.items})}
+    CLOUD=ref;cloudOK=true;stat();render();
+  }catch(e){}
+}
+function $(i){return document.getElementById(i)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function ymd(d){return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)}
+function daysLeft(d){if(!d)return null;var t=new Date();t.setHours(0,0,0,0);var e=new Date(d+"T00:00:00");return isNaN(e)?null:Math.round((e-t)/864e5)}
+function fd(d){if(!d)return"";var x=new Date(d+"T00:00:00");return isNaN(x)?"":x.toLocaleDateString([],{month:"short",day:"numeric"})}
+function t12(v){if(!v)return"";var p=v.split(":"),h=+p[0];return(h%12||12)+":"+p[1]+(h<12?" AM":" PM")}
+function peso(n){var x=Number(n);return n===""||n==null||!isFinite(x)?"":"₱"+x.toLocaleString()}
+function typeName(it){return it.type==="Others"&&it.ctype?it.ctype:it.type}
+function lessonText(it){var t=Number(it.ltot),d=Number(it.ldone)||0;return t>0?d+" of "+t+(t===1?" lesson":" lessons"):""}
+function costText(it){if(it.cost!=="Paid")return"Free";var p=peso(it.price),o=peso(it.orig);return"Paid"+(p?" "+p:"")+(it.disc&&o?" (was "+o+")":"")}
+function lim(it){if(it.limited!=="Yes")return["No","c-mute"];var n=daysLeft(it.end);if(n===null)return["Yes","c-warn"];if(n<0)return["Ended","c-bad"];if(n===0)return["Ends today","c-bad"];return["Ends in "+n+(n===1?" day":" days"),n<=3?"c-bad":"c-warn"]}
+function safeUrl(u){return /^https?:\/\//i.test(u||"")?u:null}
+function evKey(it){var wb=it.type==="Live webinar",d=wb?it.start:(it.limited==="Yes"&&it.end?it.end:"");return d?d+(wb?" "+(it.wst||"00:00"):""):""}
+function rank(it){var k=evKey(it);return!k?1:(k.slice(0,10)<ymd(new Date())?2:0)}
+function order(a){return a.map(function(x,i){return[x,i]}).sort(function(p,q){var x=p[0],y=q[0],dx=x.status==="Done",dy=y.status==="Done";if(dx!==dy)return dx?1:-1;var rx=rank(x),ry=rank(y);if(rx!==ry)return rx-ry;if(rx!==1){var kx=evKey(x),ky=evKey(y);if(kx!==ky)return kx<ky?-1:1}return p[1]-q[1]}).map(function(p){return p[0]})}
+function R(l,v,c){return v?"<span>"+l+'</span><span class="'+(c||"")+'">'+v+"</span>":""}
+function card(it){
+  var si=Math.max(0,STAT.indexOf(it.status)),u=safeUrl(it.link),L=lim(it),wb=it.type==="Live webinar",id=esc(it.id);
+  var right=wb?esc(fd(it.start))+(it.wst?"<br>"+esc(t12(it.wst)):""):(it.limited==="Yes"&&it.end?'<span class="'+L[1]+'">'+esc(L[0])+"</span>":esc(fd(it.start)));
+  var more="";
+  if(open[it.id]){
+    var tm=wb&&it.wst?esc(t12(it.wst))+(it.wen?" to "+esc(t12(it.wen)):""):"";
+    more='<div class="more"><div class="rows">'
+      +(it.title&&it.name?R("Source",esc(it.name)):"")
+      +R("Type",esc(typeName(it)),"c-acc")
+      +R("Lessons",esc(lessonText(it)))
+      +R(wb?"Date":"Started",esc(fd(it.start))||'<span class="c-mute">Not yet</span>')
+      +R("Time",tm)
+      +R("Cost",esc(costText(it)),it.cost==="Paid"?"c-warn":"c-ok")
+      +R("Limited",esc(L[0]),L[1])
+      +(u?R("Link",'<a href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">Open link</a>'):"")
+      +R("Details",esc(it.details),"pre")
+      +R("Note",esc(it.note),"pre")
+      +'</div><div class="acts"><button class="badge s'+si+'" data-a="stat" data-id="'+id+'" aria-label="Change status">'+STAT[si]+'</button>'
+      +'<button class="btn sm" data-a="edit" data-id="'+id+'">Edit</button>'
+      +'<button class="btn sm del" data-a="del" data-id="'+id+'">'+(armed===it.id?"Tap again to delete":"Delete")+"</button></div></div>";
+  }
+  return'<div class="it"><button class="row" data-a="tog" data-id="'+id+'" aria-expanded="'+!!open[it.id]+'"><span class="dot d'+si+'"></span><span class="tt"><b>'+esc(it.title||it.name)+"</b><small>"+esc(typeName(it)+" · "+costText(it)+(lessonText(it)?" · "+lessonText(it):""))+'</small></span><span class="dt">'+right+"</span></button>"+more+"</div>";
+}
+function render(){
+  var items=S.items;
+
+
+
+  $("tabs").innerHTML=TABS.map(function(t){var c=items.filter(function(x){return(x.status||"Not started")===t[0]}).length;return'<button class="tab'+(t[0]===tab?" on":"")+'" role="tab" aria-selected="'+(t[0]===tab)+'" data-t="'+t[0]+'">'+t[1]+" <small>"+c+"</small></button>"}).join("");
+  var shown=order(items.filter(function(it){return(it.status||"Not started")===tab}));
+  $("list").innerHTML=shown.length?shown.map(card).join(""):'<div class="empty"><strong>'+(items.length?"Nothing here yet":"Add your first learning item")+"</strong>"+(items.length?"Items with this status show up here.":"Soonest dates show first.")+"</div>";
+}
+function syncForm(){
+  var t=$("f-type").value,wb=t==="Live webinar",paid=$("f-cost").value==="Paid";
+  $("f-ctype").hidden=t!=="Others";$("wb").hidden=!wb;$("ls").hidden=!(t==="Module"||t==="Training");
+  $("lk-lab").textContent=wb?"Webinar link":"Link";$("dt-lab").textContent=wb?"Webinar date":"Date started";
+  $("pr-row").hidden=!paid;$("dc-row").hidden=!paid;$("f-orig").hidden=!$("f-dc").checked;
+  $("end-row").hidden=$("f-lim").value!=="Yes";
+}
+function openForm(it){
+  editId=it?it.id:null;it=it||{};
+  $("f-title").textContent=editId?"Edit item":"Add item";
+  $("f-ttl").value=it.title||"";$("f-name").value=it.name||"";$("f-type").value=it.type||"Module";$("f-ctype").value=it.ctype||"";
+  $("f-stat").value=it.status||"Not started";$("f-start").value=it.start||"";
+  $("f-ldone").value=it.ldone||"";$("f-ltot").value=it.ltot||"";$("f-wst").value=it.wst||"";$("f-wen").value=it.wen||"";$("f-det").value=it.details||"";
+  $("f-link").value=it.link||"";$("f-cost").value=it.cost||"Free";$("f-price").value=it.price||"";
+  $("f-dc").checked=!!it.disc;$("f-orig").value=it.orig||"";
+  $("f-lim").value=it.limited||"No";$("f-end").value=it.end||"";$("f-note").value=it.note||"";
+  $("f-err").hidden=true;syncForm();$("fo").hidden=false;$("f-ttl").focus();
+}
+function closeForm(){$("fo").hidden=true;editId=null}
+["f-type","f-cost","f-dc","f-lim"].forEach(function(i){$(i).onchange=syncForm});
+$("add").onclick=function(){openForm(null)};
+$("f-cancel").onclick=closeForm;
+$("fo").onclick=function(e){if(e.target===this)closeForm()};
+$("f-save").onclick=function(){
+  var title=$("f-ttl").value.trim();
+  if(!title){$("f-err").textContent="Enter a title.";$("f-err").hidden=false;return}
+  var t=$("f-type").value,ls=(t==="Module"||t==="Training"),wb=t==="Live webinar",paid=$("f-cost").value==="Paid",dc=paid&&$("f-dc").checked,lim=$("f-lim").value==="Yes";
+  var lk=$("f-link").value.trim();if(lk&&!/^https?:\/\//i.test(lk))lk="https://"+lk;
+  var it={id:editId||Date.now().toString(36),title:title,name:$("f-name").value.trim(),type:t,ctype:t==="Others"?$("f-ctype").value.trim():"",
+    status:$("f-stat").value,start:$("f-start").value,ldone:ls?$("f-ldone").value:"",ltot:ls?$("f-ltot").value:"",wst:wb?$("f-wst").value:"",wen:wb?$("f-wen").value:"",details:wb?$("f-det").value.trim():"",
+    link:lk,cost:$("f-cost").value,price:paid?$("f-price").value:"",disc:dc,orig:dc?$("f-orig").value:"",
+    limited:lim?"Yes":"No",end:lim?$("f-end").value:"",note:$("f-note").value.trim()};
+  if(editId){S.items=S.items.map(function(x){return x.id===editId?it:x})}else{S.items.unshift(it)}
+  tab=it.status;save();closeForm();render();
+};
+$("tabs").onclick=function(e){var b=e.target.closest("[data-t]");if(b){tab=b.getAttribute("data-t");armed=null;render()}};
+$("list").onclick=function(e){
+  var b=e.target.closest("button[data-a]");if(!b)return;
+  var id=b.getAttribute("data-id"),a=b.getAttribute("data-a");
+  var it=S.items.filter(function(x){return x.id===id})[0];if(!it)return;
+  if(a==="tog"){open[id]=!open[id];armed=null}
+  else if(a==="edit"){armed=null;openForm(it);return}
+  else if(a==="stat"){it.status=STAT[(STAT.indexOf(it.status)+1)%STAT.length];tab=it.status;save()}
+  else if(a==="del"){if(armed===id){S.items=S.items.filter(function(x){return x.id!==id});armed=null;save()}else{armed=id}}
+  render();
+};
+function applyTheme(m){var r=document.documentElement;if(m==="day")r.setAttribute("data-theme","light");else if(m==="night")r.setAttribute("data-theme","dark");else r.removeAttribute("data-theme");$("th").textContent=m==="day"?"Day":m==="night"?"Night":"Auto"}
+var theme="auto";try{theme=localStorage.getItem(TK)||"auto"}catch(e){}
+applyTheme(theme);
+$("th").onclick=function(){theme=theme==="auto"?"day":theme==="day"?"night":"auto";applyTheme(theme);try{localStorage.setItem(TK,theme)}catch(e){}};
+function msg(t,ok){var m=$("bk-msg");m.textContent=t;m.style.color=ok?"var(--ok)":"var(--bad)";m.hidden=false}
+function payload(){return JSON.stringify({app:"va-learning-planner",version:2,items:S.items},null,2)}
+$("bk").onclick=function(){$("bk-msg").hidden=true;$("bk-text").hidden=true;$("bo").hidden=false};
+$("bk-close").onclick=function(){$("bo").hidden=true};
+$("bo").onclick=function(e){if(e.target===this)$("bo").hidden=true};
+$("bk-dl").onclick=async function(){
+  var d=null;try{d=window.claude&&await window.claude.use("downloads")}catch(e){}
+  if(!d){try{var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([payload()],{type:"application/json"}));a.download="va-learning-planner-backup-"+ymd(new Date())+".json";document.body.appendChild(a);a.click();a.remove();msg("Backup downloaded.",true)}catch(e){$("bk-text").value=payload();$("bk-text").hidden=false;msg("Couldn’t download. Copy this text into a .json file instead.",false)}return}
+  try{await d.save({filename:"va-learning-planner-backup-"+ymd(new Date())+".json",data:payload()});msg("Backup saved.",true)}
+  catch(e){if(!e||e.code!=="declined")msg("Couldn’t save the backup. Try again.",false)}
+};
+$("bk-up").onclick=function(){$("bk-file").click()};
+$("bk-file").onchange=function(){
+  var f=this.files&&this.files[0],inp=this;if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{var d=JSON.parse(r.result);if(!d||!Array.isArray(d.items))throw 0;S.items=d.items.map(migrate);save();render();msg("Restored "+S.items.length+(S.items.length===1?" item.":" items."),true)}
+    catch(e){msg("Couldn’t read that file. Choose a backup .json file from this planner.",false)}
+    inp.value="";
+  };
+  r.onerror=function(){msg("Couldn’t open that file.",false)};
+  r.readAsText(f);
+};
+var fs=$("f-type");fs.innerHTML=TYPES.map(function(t){return"<option>"+t+"</option>"}).join("");
+$("f-stat").innerHTML=STAT.map(function(t){return"<option>"+t+"</option>"}).join("");
+render();stat();initCloud();
+try{if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}catch(e){}
+</script>
+</body>
+</html>
